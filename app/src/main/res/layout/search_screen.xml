@@ -88,8 +88,9 @@
             android:id="@+id/et_reviews"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter number of reviews"
-            android:inputType="number" />
+            android:hint="Select review rating"
+            android:focusable="false"
+            android:clickable="true" />
 
         <!-- Number of People Input -->
         <TextView

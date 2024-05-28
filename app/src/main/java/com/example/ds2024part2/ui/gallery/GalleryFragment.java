@@ -6,15 +6,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.ds2024part2.NumberPickerDialogFragment;
 import com.example.ds2024part2.R;
 import com.example.ds2024part2.databinding.FragmentGalleryBinding;
 
+import java.text.DecimalFormat;
 import java.util.Calendar;
+
+
 
 public class GalleryFragment extends Fragment {
 
@@ -49,6 +55,10 @@ public class GalleryFragment extends Fragment {
 
         etCheckinDate.setOnClickListener(v -> showCheckinDatePickerDialog(etCheckinDate));
         etCheckoutDate.setOnClickListener(v -> showCheckoutDatePickerDialog(etCheckoutDate));
+
+        // Setup NumberPickerDialog for review ratings
+        EditText etReviews = searchLayout.findViewById(R.id.et_reviews);
+        etReviews.setOnClickListener(v -> showNumberPickerDialog(etReviews));
 
         return root;
     }
@@ -93,6 +103,17 @@ public class GalleryFragment extends Fragment {
         // Set minimum date for checkout to be after check-in date
         datePickerDialog.getDatePicker().setMinDate(checkinCalendar.getTimeInMillis() + (24 * 60 * 60 * 1000)); // Add one day to check-in date
         datePickerDialog.show();
+    }
+
+    private void showNumberPickerDialog(final EditText editText) {
+        FragmentManager fragmentManager = getParentFragmentManager();
+        NumberPickerDialogFragment dialogFragment = new NumberPickerDialogFragment();
+        dialogFragment.setOnNumberPickerValueSelectedListener(value -> {
+            DecimalFormat decimalFormat = new DecimalFormat("0.0");
+            String formattedValue = decimalFormat.format(value);
+            editText.setText(formattedValue);
+        });
+        dialogFragment.show(fragmentManager, "numberPicker");
     }
 
     @Override
