@@ -60,6 +60,22 @@
                 android:inputType="none" />
         </LinearLayout>
 
+        <!-- Price Input -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price"
+            android:textSize="16sp"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp" />
+
+        <EditText
+            android:id="@+id/et_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter price"
+            android:inputType="numberDecimal" />
+
         <!-- Stars Input -->
         <TextView
             android:layout_width="wrap_content"

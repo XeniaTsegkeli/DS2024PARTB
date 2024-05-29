@@ -2,11 +2,13 @@ package com.example.ds2024part2.ui.gallery;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.NumberPicker;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -19,7 +21,10 @@ import com.example.ds2024part2.databinding.FragmentGalleryBinding;
 
 import java.text.DecimalFormat;
 import java.util.Calendar;
+import java.util.UUID;
 
+import com.example.ds2024part2.TcpClient;
+import model.Filters;
 
 
 public class GalleryFragment extends Fragment {
@@ -28,7 +33,7 @@ public class GalleryFragment extends Fragment {
     private Calendar checkinCalendar;
     private Calendar checkoutCalendar;
     private Calendar todayCalendar;
-
+    private View searchLayout;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         GalleryViewModel galleryViewModel =
@@ -38,7 +43,7 @@ public class GalleryFragment extends Fragment {
         View root = binding.getRoot();
 
         // Inflate the search layout
-        View searchLayout = inflater.inflate(R.layout.search_screen, container, false);
+        searchLayout = inflater.inflate(R.layout.search_screen, container, false);
 
         // Add the inflated layout to the FrameLayout container
         ViewGroup containerSearch = root.findViewById(R.id.container_search);
@@ -59,6 +64,10 @@ public class GalleryFragment extends Fragment {
         // Setup NumberPickerDialog for review ratings
         EditText etReviews = searchLayout.findViewById(R.id.et_reviews);
         etReviews.setOnClickListener(v -> showNumberPickerDialog(etReviews));
+
+        // Setup search button
+        Button searchButton = searchLayout.findViewById(R.id.btn_search);
+        searchButton.setOnClickListener(v -> collectInputAndSendAsJson());
 
         return root;
     }
@@ -116,6 +125,54 @@ public class GalleryFragment extends Fragment {
         dialogFragment.show(fragmentManager, "numberPicker");
     }
 
+    private void collectInputAndSendAsJson() {
+        String uuid = UUID.randomUUID().toString();
+        System.out.println("Start collecting input");
+        try {
+            // Get the input values from EditText fields
+            EditText etArea = searchLayout.findViewById(R.id.et_area);
+            EditText etCheckinDate = searchLayout.findViewById(R.id.et_checkin_date);
+            EditText etCheckoutDate = searchLayout.findViewById(R.id.et_checkout_date);
+            EditText etReviews = searchLayout.findViewById(R.id.et_reviews);
+            EditText etPrice = searchLayout.findViewById(R.id.et_price);
+            EditText etNumPeople = searchLayout.findViewById(R.id.et_people);
+            Spinner spinnerStars = searchLayout.findViewById(R.id.spinner_stars);
+
+            String area = etArea.getText().toString().trim();
+            String checkinDate = etCheckinDate.getText().toString().trim();
+            String checkoutDate = etCheckoutDate.getText().toString().trim();
+            double reviews = Double.parseDouble(etReviews.getText().toString().trim());
+            double price = Double.parseDouble(etPrice.getText().toString().trim());
+            int numPeople = Integer.parseInt(etNumPeople.getText().toString().trim());
+            int stars = Integer.parseInt(spinnerStars.getSelectedItem().toString().trim());
+
+            String dateRange = checkinDate + " - " + checkoutDate;
+            Filters filters = new Filters(area,dateRange,numPeople,price,stars,uuid);
+//            // Create a JSON object to store the input values
+//            JSONObject jsonObject = new JSONObject();
+//            jsonObject.put("area", area);
+//            jsonObject.put("checkin_date", checkinDate);
+//            jsonObject.put("checkout_date", checkoutDate);
+//            jsonObject.put("reviews", reviews);
+//            jsonObject.put("num_people", numPeople);
+//            jsonObject.put("stars", stars);
+
+            // Convert the JSON object to a string
+           // String jsonString = jsonObject.toString();
+
+            // You can now use the jsonString for further processing, such as sending it over the network
+            Log.d("DATA ", filters.toString());
+
+            TcpClient tcpClient = new TcpClient();
+
+            // Send the JSON object over TCP
+            tcpClient.sendJsonOverTcp(filters, uuid);
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            // Handle invalid input format
+        }
+    }
     @Override
     public void onDestroyView() {
         super.onDestroyView();
