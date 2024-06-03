@@ -14,30 +14,37 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ds2024part2.NumberPickerDialogFragment;
+import com.example.ds2024part2.PropertyAdapter;
 import com.example.ds2024part2.R;
+import com.example.ds2024part2.TcpClientCallback;
 import com.example.ds2024part2.databinding.FragmentGalleryBinding;
 
 import java.text.DecimalFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 import com.example.ds2024part2.TcpClient;
 import model.Filters;
+import model.Property;
 
 
-public class GalleryFragment extends Fragment {
+public class GalleryFragment extends Fragment implements TcpClientCallback {
 
     private FragmentGalleryBinding binding;
     private Calendar checkinCalendar;
     private Calendar checkoutCalendar;
     private Calendar todayCalendar;
     private View searchLayout;
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        GalleryViewModel galleryViewModel =
-                new ViewModelProvider(this).get(GalleryViewModel.class);
+    private RecyclerView recyclerView;
+    private PropertyAdapter propertyAdapter;
+
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        GalleryViewModel galleryViewModel = new ViewModelProvider(this).get(GalleryViewModel.class);
 
         binding = FragmentGalleryBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -48,6 +55,12 @@ public class GalleryFragment extends Fragment {
         // Add the inflated layout to the FrameLayout container
         ViewGroup containerSearch = root.findViewById(R.id.container_search);
         containerSearch.addView(searchLayout);
+
+        // Initialize RecyclerView
+        recyclerView = root.findViewById(R.id.recycler_view);
+        propertyAdapter = new PropertyAdapter();
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(propertyAdapter);
 
         // Initialize Calendars
         checkinCalendar = Calendar.getInstance();
@@ -67,7 +80,10 @@ public class GalleryFragment extends Fragment {
 
         // Setup search button
         Button searchButton = searchLayout.findViewById(R.id.btn_search);
-        searchButton.setOnClickListener(v -> collectInputAndSendAsJson());
+        searchButton.setOnClickListener(v -> {
+            recyclerView.setVisibility(View.GONE); // Hide RecyclerView when a new search is initiated
+            collectInputAndSendAsJson();
+        });
 
         return root;
     }
@@ -147,32 +163,31 @@ public class GalleryFragment extends Fragment {
             int stars = Integer.parseInt(spinnerStars.getSelectedItem().toString().trim());
 
             String dateRange = checkinDate + " - " + checkoutDate;
-            Filters filters = new Filters(area,dateRange,numPeople,price,stars,uuid);
-//            // Create a JSON object to store the input values
-//            JSONObject jsonObject = new JSONObject();
-//            jsonObject.put("area", area);
-//            jsonObject.put("checkin_date", checkinDate);
-//            jsonObject.put("checkout_date", checkoutDate);
-//            jsonObject.put("reviews", reviews);
-//            jsonObject.put("num_people", numPeople);
-//            jsonObject.put("stars", stars);
+            Filters filters = new Filters(area, dateRange, numPeople, price, stars, uuid);
 
-            // Convert the JSON object to a string
-           // String jsonString = jsonObject.toString();
+            // Log the filters for debugging
+            Log.d("GalleryFragment", "Filters: " + filters.toString());
 
-            // You can now use the jsonString for further processing, such as sending it over the network
-            Log.d("DATA ", filters.toString());
-
-            TcpClient tcpClient = new TcpClient();
-
-            // Send the JSON object over TCP
+            // Create and send TCP client request
+            TcpClient tcpClient = new TcpClient(this);
             tcpClient.sendJsonOverTcp(filters, uuid);
 
         } catch (NumberFormatException e) {
             e.printStackTrace();
-            // Handle invalid input format
+            Log.e("GalleryFragment", "Invalid input format: " + e.getMessage());
         }
     }
+
+    @Override
+    public void onPropertiesReceived(List<Property> properties) {
+        Log.d("GalleryFragment", "Received properties: " + properties.toString());
+        getActivity().runOnUiThread(() -> {
+            propertyAdapter.setProperties(properties);
+            recyclerView.setVisibility(View.VISIBLE); // Show RecyclerView when properties are received
+            searchLayout.setVisibility(View.GONE); // Hide search layout when properties are displayed
+        });
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

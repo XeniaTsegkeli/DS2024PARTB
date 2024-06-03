@@ -1,7 +1,9 @@
 package model;
 
-
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Base64;
 
 public class Property implements Serializable {
 
@@ -96,6 +98,15 @@ public class Property implements Serializable {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public void setRoomImagePath(String imagePath) {
+        try {
+            byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
+            this.roomImage = Base64.getEncoder().encodeToString(imageBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
