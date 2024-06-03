@@ -5,7 +5,8 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/entry_background">
 
     <!-- Room Name -->
     <LinearLayout
