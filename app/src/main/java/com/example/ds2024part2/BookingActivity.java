@@ -1,7 +1,9 @@
 package com.example.ds2024part2;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -13,15 +15,19 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Calendar;
+import java.util.List;
+import java.util.UUID;
 
 import model.Booking;
+import model.Property;
 
-public class BookingActivity extends AppCompatActivity {
+public class BookingActivity extends AppCompatActivity implements TcpClientCallback{
 
     private EditText etCheckinDate, etCheckoutDate, etRenterName, etPropertyName;
     private Button btnBook;
     private Calendar checkinCalendar, checkoutCalendar;
     private String propertyName;
+    private Calendar todayCalendar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,6 +45,7 @@ public class BookingActivity extends AppCompatActivity {
 
         checkinCalendar = Calendar.getInstance();
         checkoutCalendar = Calendar.getInstance();
+        todayCalendar = Calendar.getInstance();
 
         etCheckinDate.setOnClickListener(v -> showDatePickerDialog(etCheckinDate, checkinCalendar));
         etCheckoutDate.setOnClickListener(v -> showDatePickerDialog(etCheckoutDate, checkoutCalendar));
@@ -58,6 +65,7 @@ public class BookingActivity extends AppCompatActivity {
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
+        datePickerDialog.getDatePicker().setMinDate(todayCalendar.getTimeInMillis());
         datePickerDialog.show();
     }
 
@@ -76,7 +84,24 @@ public class BookingActivity extends AppCompatActivity {
         booking.setRoomName(propertyName);
         String dates = checkinDate + " - " + checkoutDate;
         booking.setDates(dates);
+        booking.setDateList(DateUtils.parseDateRange(dates));
 
         // TODO: Send booking to server
+        String uuid = UUID.randomUUID().toString();
+        TcpClient tcpClient = new TcpClient(this);
+        String result = tcpClient.sendBookingOverTcp(booking, uuid, 1);
+        System.out.println(result);
+        AlertDialog.Builder builder = new AlertDialog.Builder(BookingActivity.this);
+        builder.setMessage(result)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    finish();
+                })
+                .show();
+//
+       }
+
+    @Override
+    public void onPropertiesReceived(List<Property> properties) {
+
     }
 }

@@ -24,9 +24,11 @@ import com.example.ds2024part2.TcpClientCallback;
 import com.example.ds2024part2.databinding.FragmentGalleryBinding;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import com.example.ds2024part2.TcpClient;
@@ -43,6 +45,7 @@ public class GalleryFragment extends Fragment implements TcpClientCallback {
     private View searchLayout;
     private RecyclerView recyclerView;
     private PropertyAdapter propertyAdapter;
+    private static final String DATE_FORMAT = "MM/dd/yyyy";
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         GalleryViewModel galleryViewModel = new ViewModelProvider(this).get(GalleryViewModel.class);
@@ -89,6 +92,14 @@ public class GalleryFragment extends Fragment implements TcpClientCallback {
         return root;
     }
 
+    private String formatDate(Calendar calendar) {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
+        return String.format(Locale.getDefault(), "%02d/%02d/%d",
+                calendar.get(Calendar.MONTH) + 1, // Adding 1 because Calendar.MONTH is zero-based
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.YEAR));
+    }
+
     private void showCheckinDatePickerDialog(final EditText editText) {
         int year = checkinCalendar.get(Calendar.YEAR);
         int month = checkinCalendar.get(Calendar.MONTH);
@@ -98,7 +109,7 @@ public class GalleryFragment extends Fragment implements TcpClientCallback {
                 getContext(),
                 (view, year1, month1, dayOfMonth) -> {
                     checkinCalendar.set(year1, month1, dayOfMonth);
-                    String selectedDate = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
+                    String selectedDate = formatDate(checkinCalendar); // Format the date
                     editText.setText(selectedDate);
 
                     // Set the minimum date for checkoutCalendar
@@ -120,7 +131,7 @@ public class GalleryFragment extends Fragment implements TcpClientCallback {
                 getContext(),
                 (view, year1, month1, dayOfMonth) -> {
                     checkoutCalendar.set(year1, month1, dayOfMonth);
-                    String selectedDate = dayOfMonth + "/" + (month1 + 1) + "/" + year1;
+                    String selectedDate = formatDate(checkinCalendar); // Format the date
                     editText.setText(selectedDate);
                 },
                 year, month, day

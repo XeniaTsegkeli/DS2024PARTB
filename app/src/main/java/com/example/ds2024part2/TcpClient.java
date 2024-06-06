@@ -1,6 +1,7 @@
 package com.example.ds2024part2;
 
 
+import model.Booking;
 import model.Filters;
 import model.Property;
 
@@ -52,4 +53,47 @@ public class TcpClient {
             }
         }).start();
     }
+
+    public String sendBookingOverTcp(Booking booking, String uuid, int function) {
+        final String[] result = new String[1];
+        final Object lock = new Object();
+
+        Thread thread = new Thread(() -> {
+            try (Socket socket = new Socket(SERVER_IP, SERVER_PORT);
+                 DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                 ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+
+                dataOutputStream.writeUTF("Renter");
+                dataOutputStream.writeUTF(uuid);
+                dataOutputStream.writeInt(function);
+                dataOutputStream.flush();
+
+                outputStream.writeObject(booking);
+                outputStream.flush();
+
+                // Read the result from the input stream
+                Object response = ois.readObject();
+                synchronized (lock) {
+                    result[0] = response.toString();
+                    lock.notify();
+                }
+
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+
+        synchronized (lock) {
+            thread.start();
+            try {
+                lock.wait(); // Wait for the thread to finish and notify
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result[0];
+    }
+
 }
