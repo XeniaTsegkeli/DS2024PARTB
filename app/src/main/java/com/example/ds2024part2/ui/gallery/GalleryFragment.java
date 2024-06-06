@@ -24,6 +24,7 @@ import com.example.ds2024part2.TcpClientCallback;
 import com.example.ds2024part2.databinding.FragmentGalleryBinding;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -58,7 +59,7 @@ public class GalleryFragment extends Fragment implements TcpClientCallback {
 
         // Initialize RecyclerView
         recyclerView = root.findViewById(R.id.recycler_view);
-        propertyAdapter = new PropertyAdapter();
+        propertyAdapter = new PropertyAdapter(getContext(), new ArrayList<>());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(propertyAdapter);
 
