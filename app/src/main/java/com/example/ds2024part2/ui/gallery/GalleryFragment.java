@@ -170,7 +170,7 @@ public class GalleryFragment extends Fragment implements TcpClientCallback {
 
             // Create and send TCP client request
             TcpClient tcpClient = new TcpClient(this);
-            tcpClient.sendJsonOverTcp(filters, uuid);
+            tcpClient.sendJsonOverTcp(filters, uuid, 2);
 
         } catch (NumberFormatException e) {
             e.printStackTrace();

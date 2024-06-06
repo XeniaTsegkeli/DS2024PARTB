@@ -23,7 +23,7 @@ public class TcpClient {
         this.callback = callback;
     }
 
-    public void sendJsonOverTcp(Filters filters, String uuid) {
+    public void sendJsonOverTcp(Filters filters, String uuid, int function) {
         new Thread(() -> {
             try (Socket socket = new Socket(SERVER_IP, SERVER_PORT);
                  DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
@@ -32,7 +32,7 @@ public class TcpClient {
 
                 dataOutputStream.writeUTF("Renter");
                 dataOutputStream.writeUTF(uuid);
-                dataOutputStream.writeInt(2);
+                dataOutputStream.writeInt(function);
                 dataOutputStream.flush();
 
                 outputStream.writeObject(filters);
