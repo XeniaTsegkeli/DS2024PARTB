@@ -3,12 +3,8 @@ package com.example.ds2024part2;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -102,6 +98,11 @@ public class BookingActivity extends AppCompatActivity implements TcpClientCallb
 
     @Override
     public void onPropertiesReceived(List<Property> properties) {
+
+    }
+
+    @Override
+    public void onRatingResponseReceived(String response) {
 
     }
 }

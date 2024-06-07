@@ -1,4 +1,4 @@
-package com.example.ds2024part2.ui.slideshow;
+package com.example.ds2024part2.ui.rate;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

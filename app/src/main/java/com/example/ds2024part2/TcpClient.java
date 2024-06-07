@@ -4,6 +4,7 @@ package com.example.ds2024part2;
 import model.Booking;
 import model.Filters;
 import model.Property;
+import model.RoomRating;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -96,4 +97,33 @@ public class TcpClient {
         return result[0];
     }
 
+    public void sendAccomodationRating(RoomRating roomRating, String uuid, int function) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try (Socket socket = new Socket(SERVER_IP, SERVER_PORT);
+                     DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                     ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                     ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+
+                    dos.writeUTF("Renter");
+                    dos.writeUTF(uuid);
+                    dos.writeInt(function);
+                    dos.flush();
+
+                    oos.writeObject(roomRating);
+                    oos.flush();
+
+                    // Read the server's response
+                    String response = ois.readUTF();
+                    if (callback != null) {
+                        callback.onRatingResponseReceived(response.toString());
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 }

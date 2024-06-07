@@ -5,4 +5,5 @@ import model.Property;
 
 public interface TcpClientCallback {
     void onPropertiesReceived(List<Property> properties);
+    void onRatingResponseReceived(String response); // Add this method
 }

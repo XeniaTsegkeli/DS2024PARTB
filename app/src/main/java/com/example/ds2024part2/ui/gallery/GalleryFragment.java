@@ -201,6 +201,11 @@ public class GalleryFragment extends Fragment implements TcpClientCallback {
     }
 
     @Override
+    public void onRatingResponseReceived(String response) {
+
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
