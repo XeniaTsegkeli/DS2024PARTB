@@ -6,6 +6,7 @@ import model.Filters;
 import model.Property;
 import model.RoomRating;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -106,6 +107,8 @@ public class TcpClient {
                      ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
                      ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 
+                    System.out.println("Sending rating to server");
+
                     dos.writeUTF("Renter");
                     dos.writeUTF(uuid);
                     dos.writeInt(function);
@@ -113,15 +116,22 @@ public class TcpClient {
 
                     oos.writeObject(roomRating);
                     oos.flush();
+                    System.out.println("Rating sent, waiting for response");
 
                     // Read the server's response
-                    String response = ois.readUTF();
+                    Object response = ois.readObject();
+                    System.out.println("Response from server: " + response.toString());
+
                     if (callback != null) {
                         callback.onRatingResponseReceived(response.toString());
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                    System.out.println("IOException occurred: " + e.getMessage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("Exception occurred: " + e.getMessage());
                 }
             }
         }).start();
