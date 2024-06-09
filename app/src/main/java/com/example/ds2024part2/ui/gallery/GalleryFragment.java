@@ -95,8 +95,8 @@ public class GalleryFragment extends Fragment implements TcpClientCallback {
     private String formatDate(Calendar calendar) {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
         return String.format(Locale.getDefault(), "%02d/%02d/%d",
-                calendar.get(Calendar.MONTH) + 1, // Adding 1 because Calendar.MONTH is zero-based
-                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH), // Change to DAY_OF_MONTH
+                calendar.get(Calendar.MONTH) + 1,    // Change to MONTH and add 1
                 calendar.get(Calendar.YEAR));
     }
 
